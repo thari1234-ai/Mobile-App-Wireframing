@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow — Low-Fidelity Wireframes</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 48px;
+    }
+
+    /* ── Page Header ── */
+    .page-header {
+      text-align: center;
+      color: #e0e0e0;
+      margin-bottom: 28px;
+    }
+    .page-header h1 { font-size: 22px; font-weight: 700; letter-spacing: 1px; }
+    .page-header p  { font-size: 12px; color: #888; margin-top: 4px; }
+
+    /* ── Screen Navigator ── */
+    .screen-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 28px;
+      max-width: 860px;
+    }
+    .nav-btn {
+      padding: 6px 12px;
+      border-radius: 20px;
+      border: 1.5px solid #444;
+      background: #252540;
+      color: #aaa;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .nav-btn:hover  { border-color: #7b8cde; color: #c0c8ff; }
+    .nav-btn.active { border-color: #7b8cde; background: #2e3066; color: #c0c8ff; }
+
+    /* ── Phone Shell ── */
+    .phone-shell {
+      width: 390px;
+      min-height: 844px;
+      background: #fff;
+      border-radius: 40px;
+      overflow: hidden;
+      box-shadow: 0 0 0 10px #222, 0 0 0 12px #444, 0 32px 64px rgba(0,0,0,0.7);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Status bar */
+    .status-bar {
+      background: #f5f5f5;
+      padding: 12px 24px 6px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: #333;
+      flex-shrink: 0;
+    }
+    .status-bar .time { font-size: 13px; }
+    .status-icons { display: flex; gap: 6px; align-items: center; }
+    .status-icons span { font-size: 13px; }
+
+    /* Dynamic Island notch */
+    .notch {
+      width: 120px;
+      height: 30px;
+      background: #111;
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+    }
+
+    /* Screen content area */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      padding-top: 4px;
+    }
+    .screen { display: none; width: 100%; min-height: 720px; }
+    .screen.active { display: block; }
+
+    /* ── Wireframe Design Tokens ── */
+    :root {
+      --bg-page:   #f4f4f4;
+      --bg-card:   #ffffff;
+      --bg-strip:  #e8e8e8;
+      --txt-dark:  #2a2a2a;
+      --txt-mid:   #666666;
+      --txt-light: #aaaaaa;
+      --border:    #d8d8d8;
+      --accent:    #5c6bc0;
+      --accent-lt: #e8eaf6;
+      --pri-high:  #ef5350;
+      --pri-med:   #fb8c00;
+      --pri-low:   #42a5f5;
+      --pri-none:  #bdbdbd;
+      --green:     #43a047;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+    }
+
+    /* ── Shared Components ── */
+    .wf-screen { background: var(--bg-page); min-height: 720px; padding-bottom: 80px; }
+    .wf-topbar {
+      background: var(--bg-card);
+      padding: 14px 20px 10px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .wf-topbar h2 { font-size: 18px; font-weight: 700; color: var(--txt-dark); }
+    .wf-topbar .icon-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--bg-strip);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; cursor: pointer; border: none;
+    }
+
+    /* Bottom navigation bar */
+    .wf-bottomnav {
+      position: sticky;
+      bottom: 0;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0 20px;
+      z-index: 20;
+    }
+    .wf-bottomnav .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--txt-light);
+      cursor: pointer;
+      padding: 4px 16px;
+      border-radius: 8px;
+      transition: background 0.1s;
+    }
+    .wf-bottomnav .nav-item.active { color: var(--accent); }
+    .wf-bottomnav .nav-item .icon { font-size: 20px; line-height: 1; }
+
+    /* Cards */
+    .wf-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+    }
+
+    /* Task list item */
+    .task-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .task-item:hover { background: #fafafa; }
+    .task-checkbox {
+      width: 20px; height: 20px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      flex-shrink: 0;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .task-checkbox.done {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+      font-size: 11px;
+    }
+    .task-info { flex: 1; min-width: 0; }
+    .task-title { font-size: 14px; font-weight: 500; color: var(--txt-dark); }
+    .task-title.done { text-decoration: line-through; color: var(--txt-light); }
+    .task-meta { font-size: 11px; color: var(--txt-light); margin-top: 2px; }
+    .task-priority {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .task-priority.high { background: var(--pri-high); }
+    .task-priority.med  { background: var(--pri-med); }
+    .task-priority.low  { background: var(--pri-low); }
+    .task-priority.none { background: var(--pri-none); }
+
+    /* Placeholder image block */
+    .wf-img-block {
+      background: var(--bg-strip);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--txt-light);
+      font-size: 11px;
+      font-style: italic;
+    }
+
+    /* Section header */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--txt-light);
+      padding: 16px 20px 8px;
+    }
+
+    /* Progress bar */
+    .progress-track {
+      background: var(--bg-strip);
+      border-radius: 99px;
+      height: 6px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 99px;
+      transition: width 0.4s;
+    }
+
+    /* FAB */
+    .wf-fab {
+      position: absolute;
+      bottom: 88px;
+      right: 20px;
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-size: 26px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 16px rgba(92,107,192,0.4);
+      cursor: pointer;
+      border: none;
+      z-index: 15;
+    }
+
+    /* Badge */
+    .badge {
+      font-size: 10px; font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 99px;
+      display: inline-block;
+    }
+    .badge.high  { background: #ffebee; color: var(--pri-high); }
+    .badge.med   { background: #fff3e0; color: var(--pri-med);  }
+    .badge.low   { background: #e3f2fd; color: var(--pri-low);  }
+    .badge.none  { background: #f5f5f5; color: var(--pri-none); }
+
+    /* Bottom sheet */
+    .wf-sheet-overlay {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 30;
+    }
+    .wf-sheet-overlay.open { display: block; }
+    .wf-sheet {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: var(--bg-card);
+      border-radius: 20px 20px 0 0;
+      padding: 20px 20px 40px;
+    }
+    .wf-sheet-handle {
+      width: 40px; height: 4px;
+      background: var(--bg-strip);
+      border-radius: 2px;
+      margin: 0 auto 16px;
+    }
+    .wf-sheet h3 { font-size: 16px; margin-bottom: 16px; color: var(--txt-dark); }
+    .wf-input {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      font-size: 14px;
+      color: var(--txt-dark);
+      margin-bottom: 12px;
+      outline: none;
+    }
+    .wf-input:focus { border-color: var(--accent); }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+    .pill {
+      padding: 6px 14px;
+      border-radius: 99px;
+      border: 1.5px solid var(--border);
+      font-size: 12px;
+      color: var(--txt-mid);
+      cursor: pointer;
+    }
+    .pill.selected { border-color: var(--accent); background: var(--accent-lt); color: var(--accent); }
+    .wf-btn {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius-md);
+      background: var(--accent);
+      color: white;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+    .wf-btn-ghost {
+      width: 100%;
+      padding: 13px;
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--txt-mid);
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    /* Category color dot */
+    .cat-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: inline-block;
+    }
+    .cat-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+    }
+    .cat-item:hover { background: #fafafa; }
+    .cat-info { flex: 1; }
+    .cat-name  { font-size: 14px; font-weight: 600; color: var(--txt-dark); }
+    .cat-count { font-size: 11px; color: var(--txt-light); margin-top: 1px; }
+    .cat-arrow { color: var(--txt-light); font-size: 14px; }
+
+    /* ───────────────── SCREEN STYLES ───────────────── */
+
+    /* S-01 Splash */
+    #s-splash {
+      background: var(--accent);
+      min-height: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+    #s-splash .logo-box {
+      width: 80px; height: 80px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px;
+    }
+    #s-splash h1 { color: white; font-size: 28px; font-weight: 800; }
+    #s-splash p  { color: rgba(255,255,255,0.7); font-size: 14px; }
+
+    /* S-02/03/04 Onboarding */
+    .onboarding-screen {
+      background: var(--bg-card);
+      min-height: 720px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 28px 32px;
+    }
+    .onboarding-img {
+      width: 100%; height: 260px;
+      border-radius: var(--radius-md);
+    }
+    .onboarding-dots {
+      display: flex; gap: 6px; margin: 24px 0 16px;
+    }
+    .onboarding-dots span {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--bg-strip);
+    }
+    .onboarding-dots span.active { background: var(--accent); width: 24px; border-radius: 4px; }
+    .onboarding-screen h2 { font-size: 22px; font-weight: 800; text-align: center; color: var(--txt-dark); margin-bottom: 10px; }
+    .onboarding-screen p  { font-size: 14px; text-align: center; color: var(--txt-mid); line-height: 1.6; }
+    .onboarding-actions { margin-top: auto; width: 100%; padding-top: 24px; }
+
+    /* S-05 Sign Up */
+    .signup-screen {
+      background: var(--bg-card);
+      min-height: 720px;
+      padding: 32px 24px;
+      display: flex; flex-direction: column;
+    }
+    .signup-screen h2 { font-size: 24px; font-weight: 800; margin-bottom: 6px; color: var(--txt-dark); }
+    .signup-screen .sub { font-size: 13px; color: var(--txt-mid); margin-bottom: 28px; }
+    .social-btn {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border);
+      font-size: 14px; font-weight: 500;
+      color: var(--txt-dark);
+      margin-bottom: 12px;
+      background: white;
+      cursor: pointer;
+    }
+    .social-btn .sicon { font-size: 20px; }
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 16px 0;
+      font-size: 12px; color: var(--txt-light);
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* S-06 Profile Setup */
+    .profile-setup-screen {
+      background: var(--bg-card);
+      min-height: 720px;
+      padding: 32px 24px;
+      display: flex; flex-direction: column;
+    }
+    .avatar-picker {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--bg-strip);
+      margin: 20px auto;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      cursor: pointer;
+      border: 2px dashed var(--border);
+    }
+    .wf-label { font-size: 12px; font-weight: 600; color: var(--txt-mid); margin-bottom: 6px; }
+
+    /* S-07 Home/Today */
+    .progress-summary {
+      background: var(--accent);
+      margin: 16px;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      color: white;
+    }
+    .progress-summary .ps-label { font-size: 12px; opacity: 0.75; margin-bottom: 4px; }
+    .progress-summary .ps-count { font-size: 26px; font-weight: 800; }
+    .progress-summary .ps-sub   { font-size: 12px; opacity: 0.75; margin-top: 2px; }
+    .progress-summary .ps-bar-track {
+      background: rgba(255,255,255,0.25);
+      border-radius: 99px;
+      height: 6px;
+      margin-top: 12px;
+      overflow: hidden;
+    }
+    .progress-summary .ps-bar-fill {
+      height: 100%;
+      background: white;
+      border-radius: 99px;
+      width: 40%;
+    }
+
+    /* Task Detail */
+    .detail-hero {
+      background: var(--accent);
+      padding: 20px 20px 28px;
+      color: white;
+    }
+    .detail-hero .back-btn {
+      font-size: 20px; margin-bottom: 12px; cursor: pointer;
+    }
+    .detail-hero h2 { font-size: 20px; font-weight: 700; line-height: 1.3; }
+    .detail-section {
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .detail-section .ds-icon { font-size: 16px; color: var(--txt-light); width: 24px; }
+    .detail-section .ds-label { font-size: 12px; color: var(--txt-light); }
+    .detail-section .ds-value { font-size: 14px; color: var(--txt-dark); font-weight: 500; margin-top: 1px; }
+
+    /* Search */
+    .search-bar-wrap {
+      padding: 12px 16px;
+      background: var(--bg-page);
+    }
+    .search-bar {
+      display: flex; align-items: center;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 99px;
+      padding: 9px 14px;
+      gap: 8px;
+    }
+    .search-bar .s-icon { font-size: 16px; color: var(--txt-light); }
+    .search-bar input {
+      flex: 1; border: none; outline: none;
+      font-size: 14px; color: var(--txt-dark);
+      background: transparent;
+    }
+
+    /* Profile screen */
+    .profile-hero {
+      background: var(--accent);
+      padding: 32px 20px 40px;
+      text-align: center;
+      color: white;
+    }
+    .profile-avatar {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      margin: 0 auto 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .profile-hero h2 { font-size: 18px; font-weight: 700; }
+    .profile-hero p  { font-size: 13px; opacity: 0.75; }
+    .settings-item {
+      background: var(--bg-card);
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; gap: 14px;
+      cursor: pointer;
+    }
+    .settings-item .si-icon { font-size: 18px; color: var(--txt-mid); }
+    .settings-item .si-label { flex: 1; font-size: 14px; color: var(--txt-dark); }
+    .settings-item .si-arrow { font-size: 14px; color: var(--txt-light); }
+    .settings-item .si-toggle {
+      width: 40px; height: 24px;
+      background: var(--accent);
+      border-radius: 99px;
+      position: relative;
+    }
+    .settings-item .si-toggle::after {
+      content: '';
+      position: absolute;
+      right: 3px; top: 3px;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    /* Completion state */
+    .completion-screen {
+      background: var(--bg-card);
+      min-height: 720px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 28px;
+      text-align: center;
+    }
+    .completion-screen .trophy { font-size: 72px; margin-bottom: 16px; }
+    .completion-screen h2 { font-size: 24px; font-weight: 800; color: var(--txt-dark); }
+    .completion-screen p  { font-size: 14px; color: var(--txt-mid); margin-top: 8px; line-height: 1.6; }
+
+    /* Annotation label */
+    .annotation {
+      display: inline-flex; align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      color: var(--txt-light);
+      font-style: italic;
+      margin-top: 3px;
+    }
+    .annotation::before { content: '↳'; }
+
+    /* Legend */
+    .wf-legend {
+      margin-top: 28px;
+      background: #252540;
+      border-radius: 16px;
+      padding: 16px 20px;
+      max-width: 390px;
+      width: 100%;
+      color: #aaa;
+    }
+    .wf-legend h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #666; margin-bottom: 10px; }
+    .wf-legend .leg-row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 12px; }
+    .wf-legend .leg-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+
+<!-- Page Header -->
+<div class="page-header">
+  <h1>TaskFlow — Low-Fidelity Wireframes</h1>
+  <p>Mobile App Wireframing · 14 Screens · Click a screen to navigate</p>
+</div>
+
+<!-- Screen Navigator -->
+<div class="screen-nav">
+  <button class="nav-btn active"  onclick="showScreen('s-splash','this')">S-01 Splash</button>
+  <button class="nav-btn"  onclick="showScreen('s-onboard1','this')">S-02 Onboarding 1</button>
+  <button class="nav-btn"  onclick="showScreen('s-onboard2','this')">S-03 Onboarding 2</button>
+  <button class="nav-btn"  onclick="showScreen('s-onboard3','this')">S-04 Onboarding 3</button>
+  <button class="nav-btn"  onclick="showScreen('s-signup','this')">S-05 Sign Up</button>
+  <button class="nav-btn"  onclick="showScreen('s-profile-setup','this')">S-06 Profile Setup</button>
+  <button class="nav-btn"  onclick="showScreen('s-home','this')">S-07 Home / Today</button>
+  <button class="nav-btn"  onclick="showScreen('s-add-task','this')">S-08 Add Task</button>
+  <button class="nav-btn"  onclick="showScreen('s-task-detail','this')">S-09 Task Detail</button>
+  <button class="nav-btn"  onclick="showScreen('s-categories','this')">S-10 Categories</button>
+  <button class="nav-btn"  onclick="showScreen('s-cat-detail','this')">S-11 Category Detail</button>
+  <button class="nav-btn"  onclick="showScreen('s-search','this')">S-12 Search</button>
+  <button class="nav-btn"  onclick="showScreen('s-profile','this')">S-13 Profile</button>
+  <button class="nav-btn"  onclick="showScreen('s-done','this')">S-14 All Done!</button>
+</div>
+
+<!-- Phone Shell -->
+<div class="phone-shell">
+  <div class="notch"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">9:41</span>
+    <div class="status-icons">
+      <span>▲</span><span>WiFi</span><span>100%</span>
+    </div>
+  </div>
+
+  <!-- Screen Content -->
+  <div class="screen-content">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-01 SPLASH                            -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-splash" class="screen active">
+      <div id="s-splash" style="background:#5c6bc0;min-height:720px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;">
+        <div style="width:88px;height:88px;background:rgba(255,255,255,0.2);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:44px;">✅</div>
+        <h1 style="color:white;font-size:30px;font-weight:800;letter-spacing:-0.5px;">TaskFlow</h1>
+        <p style="color:rgba(255,255,255,0.65);font-size:14px;">Your tasks. Simplified.</p>
+        <div style="margin-top:40px;">
+          <div style="width:36px;height:4px;background:rgba(255,255,255,0.3);border-radius:2px;"></div>
+        </div>
+        <p style="color:rgba(255,255,255,0.4);font-size:11px;margin-top:8px;font-style:italic;">Loading…</p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-02 ONBOARDING 1                      -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-onboard1" class="screen">
+      <div class="onboarding-screen">
+        <div class="wf-img-block onboarding-img" style="height:250px;font-size:13px;">
+          [ Illustration: Person with a checklist ]
+        </div>
+        <div class="onboarding-dots">
+          <span class="active"></span><span></span><span></span>
+        </div>
+        <h2>Your tasks, simplified</h2>
+        <p>One place for everything you need to do — personal, work, or anywhere in between.</p>
+        <div class="onboarding-actions">
+          <button class="wf-btn" onclick="showScreen('s-onboard2')">Next →</button>
+          <button class="wf-btn-ghost" onclick="showScreen('s-signup')">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-03 ONBOARDING 2                      -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-onboard2" class="screen">
+      <div class="onboarding-screen">
+        <div class="wf-img-block onboarding-img" style="height:250px;font-size:13px;">
+          [ Illustration: Lightning-fast task capture ]
+        </div>
+        <div class="onboarding-dots">
+          <span></span><span class="active"></span><span></span>
+        </div>
+        <h2>Capture in seconds</h2>
+        <p>Add a task in under 3 taps. No setup, no configuration — just start getting things done.</p>
+        <div class="onboarding-actions">
+          <button class="wf-btn" onclick="showScreen('s-onboard3')">Next →</button>
+          <button class="wf-btn-ghost" onclick="showScreen('s-signup')">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-04 ONBOARDING 3                      -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-onboard3" class="screen">
+      <div class="onboarding-screen">
+        <div class="wf-img-block onboarding-img" style="height:250px;font-size:13px;">
+          [ Illustration: Focus view with 3 highlighted tasks ]
+        </div>
+        <div class="onboarding-dots">
+          <span></span><span></span><span class="active"></span>
+        </div>
+        <h2>Focus on what matters</h2>
+        <p>Your daily Today view shows only what needs attention now — no noise, just clarity.</p>
+        <div class="onboarding-actions">
+          <button class="wf-btn" onclick="showScreen('s-signup')">Get Started</button>
+          <button class="wf-btn-ghost" onclick="showScreen('s-signup')">Skip</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-05 SIGN UP                           -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-signup" class="screen">
+      <div class="signup-screen">
+        <h2>Create account</h2>
+        <p class="sub">Start for free — no credit card required</p>
+
+        <div class="social-btn"><span class="sicon">G</span> Continue with Google</div>
+        <div class="social-btn"><span class="sicon">🍎</span> Continue with Apple</div>
+
+        <div class="divider">or use email</div>
+
+        <div class="wf-label">Email address</div>
+        <input class="wf-input" type="email" placeholder="you@email.com" />
+        <div class="wf-label">Password</div>
+        <input class="wf-input" type="password" placeholder="Create a password" />
+
+        <button class="wf-btn" style="margin-top:8px;" onclick="showScreen('s-profile-setup')">Create Account</button>
+
+        <p style="text-align:center;font-size:12px;color:var(--txt-light);margin-top:16px;">
+          Already have an account? <span style="color:var(--accent);cursor:pointer;">Sign in</span>
+        </p>
+        <p style="text-align:center;font-size:10px;color:var(--txt-light);margin-top:20px;">
+          By continuing you agree to our Terms & Privacy Policy
+        </p>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-06 PROFILE SETUP                     -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-profile-setup" class="screen">
+      <div class="profile-setup-screen">
+        <h2 style="font-size:22px;font-weight:800;color:var(--txt-dark);">Set up your profile</h2>
+        <p style="font-size:13px;color:var(--txt-mid);margin-top:4px;">Just a few quick things to personalize your experience</p>
+
+        <div class="avatar-picker">🙂</div>
+        <p style="text-align:center;font-size:11px;color:var(--txt-light);margin-bottom:20px;">Tap to add photo</p>
+
+        <div class="wf-label">Your name</div>
+        <input class="wf-input" type="text" placeholder="Alex Morrison" />
+
+        <div class="wf-label" style="margin-top:8px;">Notification preference</div>
+        <div class="pill-row">
+          <span class="pill selected">Push alerts</span>
+          <span class="pill">Email digest</span>
+          <span class="pill">None</span>
+        </div>
+
+        <div class="wf-label" style="margin-top:4px;">Default reminder time</div>
+        <div class="pill-row">
+          <span class="pill">Morning 8am</span>
+          <span class="pill selected">Evening 6pm</span>
+          <span class="pill">Custom</span>
+        </div>
+
+        <div style="margin-top:auto;padding-top:24px;">
+          <button class="wf-btn" onclick="showScreen('s-home')">Finish Setup →</button>
+          <button class="wf-btn-ghost" onclick="showScreen('s-home')">Skip for now</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-07 HOME / TODAY                      -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-home" class="screen">
+      <div class="wf-screen">
+        <!-- Top bar -->
+        <div class="wf-topbar">
+          <div>
+            <div style="font-size:12px;color:var(--txt-light);">Tuesday, May 13</div>
+            <h2>Today</h2>
+          </div>
+          <button class="icon-btn">🔔</button>
+        </div>
+
+        <!-- Progress summary -->
+        <div class="progress-summary">
+          <div class="ps-label">Tasks completed today</div>
+          <div class="ps-count">2 / 5</div>
+          <div class="ps-sub">Keep going, you're doing great!</div>
+          <div class="ps-bar-track"><div class="ps-bar-fill"></div></div>
+        </div>
+
+        <!-- Active tasks -->
+        <div class="section-label">Active (3)</div>
+        <div style="padding:0 16px;">
+          <div class="task-item" onclick="showScreen('s-task-detail')">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Prepare Q2 marketing report</div>
+              <div class="task-meta">📁 Work · 📅 Today · <span style="color:var(--pri-high);">● High</span></div>
+            </div>
+            <div class="task-priority high"></div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Call dentist to reschedule</div>
+              <div class="task-meta">📁 Personal · 📅 Today · <span style="color:var(--pri-med);">● Medium</span></div>
+            </div>
+            <div class="task-priority med"></div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Review product brief from Sarah</div>
+              <div class="task-meta">📁 Work · 📅 Today · <span style="color:var(--pri-low);">● Low</span></div>
+            </div>
+            <div class="task-priority low"></div>
+          </div>
+        </div>
+
+        <!-- Completed tasks -->
+        <div class="section-label">Completed (2)</div>
+        <div style="padding:0 16px;">
+          <div class="task-item" style="opacity:0.55;">
+            <div class="task-checkbox done">✓</div>
+            <div class="task-info">
+              <div class="task-title done">Reply to client invoice email</div>
+              <div class="task-meta">📁 Work · Done 9:12 AM</div>
+            </div>
+          </div>
+          <div class="task-item" style="opacity:0.55;">
+            <div class="task-checkbox done">✓</div>
+            <div class="task-info">
+              <div class="task-title done">Buy groceries</div>
+              <div class="task-meta">📁 Personal · Done 8:45 AM</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FAB -->
+        <button class="wf-fab" onclick="showScreen('s-add-task')">+</button>
+
+        <!-- Bottom Nav -->
+        <div class="wf-bottomnav">
+          <div class="nav-item active" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item" onclick="showScreen('s-search')"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item" onclick="showScreen('s-profile')"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-08 ADD TASK (shown as bottom sheet)  -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-add-task" class="screen">
+      <div class="wf-screen">
+        <!-- Home screen blurred behind sheet -->
+        <div class="wf-topbar">
+          <div>
+            <div style="font-size:12px;color:var(--txt-light);">Tuesday, May 13</div>
+            <h2>Today</h2>
+          </div>
+        </div>
+        <div style="padding:16px;opacity:0.3;pointer-events:none;">
+          <div class="task-item"><div class="task-checkbox"></div><div class="task-info"><div class="task-title">Prepare Q2 marketing report</div></div></div>
+          <div class="task-item"><div class="task-checkbox"></div><div class="task-info"><div class="task-title">Call dentist to reschedule</div></div></div>
+        </div>
+
+        <!-- Overlay + Sheet -->
+        <div class="wf-sheet-overlay open">
+          <div class="wf-sheet">
+            <div class="wf-sheet-handle"></div>
+            <h3>New Task</h3>
+
+            <input class="wf-input" type="text" placeholder="What needs to be done?" style="font-size:16px;font-weight:500;" />
+
+            <div class="wf-label">Priority</div>
+            <div class="pill-row">
+              <span class="pill selected" style="border-color:var(--pri-high);color:var(--pri-high);background:#ffebee;">🔴 High</span>
+              <span class="pill">🟠 Medium</span>
+              <span class="pill">🔵 Low</span>
+              <span class="pill">⚪ None</span>
+            </div>
+
+            <div class="wf-label">Due date</div>
+            <div class="pill-row">
+              <span class="pill selected">Today</span>
+              <span class="pill">Tomorrow</span>
+              <span class="pill">This week</span>
+              <span class="pill">📅 Pick date</span>
+            </div>
+
+            <div class="wf-label">Category</div>
+            <div class="pill-row">
+              <span class="pill selected">Work</span>
+              <span class="pill">Personal</span>
+              <span class="pill">Study</span>
+              <span class="pill">+ New</span>
+            </div>
+
+            <div class="wf-label">Note <span style="color:var(--txt-light);font-weight:400;">(optional)</span></div>
+            <input class="wf-input" type="text" placeholder="Add a note or context…" />
+
+            <button class="wf-btn" onclick="showScreen('s-home')">Save Task</button>
+            <button class="wf-btn-ghost" onclick="showScreen('s-home')">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-09 TASK DETAIL                       -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-task-detail" class="screen">
+      <div class="wf-screen" style="padding-bottom:0;">
+        <!-- Hero -->
+        <div class="detail-hero">
+          <div class="back-btn" onclick="showScreen('s-home')">← Back</div>
+          <span class="badge high" style="margin-bottom:8px;">High Priority</span>
+          <h2>Prepare Q2 marketing report</h2>
+        </div>
+
+        <!-- Detail rows -->
+        <div class="detail-section">
+          <div class="ds-icon">📅</div>
+          <div>
+            <div class="ds-label">Due date</div>
+            <div class="ds-value">Today, May 13 · 6:00 PM</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="ds-icon">📁</div>
+          <div>
+            <div class="ds-label">Category</div>
+            <div class="ds-value">Work</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="ds-icon">📝</div>
+          <div>
+            <div class="ds-label">Note</div>
+            <div class="ds-value">Include slides 4–7 from last quarter. Send to Sarah by EOD.</div>
+          </div>
+        </div>
+        <div class="detail-section">
+          <div class="ds-icon">🕐</div>
+          <div>
+            <div class="ds-label">Created</div>
+            <div class="ds-value">Yesterday, 11:32 AM</div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="padding:20px 16px;display:flex;flex-direction:column;gap:10px;">
+          <button class="wf-btn" onclick="showScreen('s-done')" style="background:var(--green);">✓ Mark as Complete</button>
+          <button class="wf-btn" style="background:white;color:var(--accent);border:1.5px solid var(--accent);">✏️ Edit Task</button>
+          <button class="wf-btn" style="background:white;color:var(--pri-high);border:1.5px solid #ffcdd2;">🗑 Delete Task</button>
+        </div>
+
+        <!-- Bottom Nav -->
+        <div class="wf-bottomnav">
+          <div class="nav-item active" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item" onclick="showScreen('s-search')"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item" onclick="showScreen('s-profile')"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-10 CATEGORIES                        -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-categories" class="screen">
+      <div class="wf-screen">
+        <div class="wf-topbar">
+          <h2>Categories</h2>
+          <button class="icon-btn">＋</button>
+        </div>
+
+        <!-- Summary card -->
+        <div style="padding:14px 16px 0;">
+          <div class="wf-card" style="display:flex;gap:16px;text-align:center;">
+            <div style="flex:1;border-right:1px solid var(--border);">
+              <div style="font-size:22px;font-weight:800;color:var(--txt-dark);">18</div>
+              <div style="font-size:11px;color:var(--txt-light);">Total tasks</div>
+            </div>
+            <div style="flex:1;border-right:1px solid var(--border);">
+              <div style="font-size:22px;font-weight:800;color:var(--green);">9</div>
+              <div style="font-size:11px;color:var(--txt-light);">Completed</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:22px;font-weight:800;color:var(--pri-high);">3</div>
+              <div style="font-size:11px;color:var(--txt-light);">High priority</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">All Categories</div>
+        <div style="padding:0 16px;">
+          <div class="cat-item" onclick="showScreen('s-cat-detail')">
+            <span class="cat-dot" style="background:#5c6bc0;"></span>
+            <div class="cat-info">
+              <div class="cat-name">Work</div>
+              <div class="cat-count">7 tasks · 3 due today</div>
+            </div>
+            <span class="cat-arrow">›</span>
+          </div>
+          <div class="cat-item">
+            <span class="cat-dot" style="background:#43a047;"></span>
+            <div class="cat-info">
+              <div class="cat-name">Personal</div>
+              <div class="cat-count">5 tasks · 1 due today</div>
+            </div>
+            <span class="cat-arrow">›</span>
+          </div>
+          <div class="cat-item">
+            <span class="cat-dot" style="background:#fb8c00;"></span>
+            <div class="cat-info">
+              <div class="cat-name">Study</div>
+              <div class="cat-count">4 tasks · 0 due today</div>
+            </div>
+            <span class="cat-arrow">›</span>
+          </div>
+          <div class="cat-item">
+            <span class="cat-dot" style="background:#bdbdbd;"></span>
+            <div class="cat-info">
+              <div class="cat-name">Inbox</div>
+              <div class="cat-count">2 tasks · uncategorized</div>
+            </div>
+            <span class="cat-arrow">›</span>
+          </div>
+        </div>
+
+        <div style="padding:16px;">
+          <button class="wf-btn" style="background:white;color:var(--accent);border:1.5px solid var(--accent);">＋ New Category</button>
+        </div>
+
+        <div class="wf-bottomnav">
+          <div class="nav-item" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item active" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item" onclick="showScreen('s-search')"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item" onclick="showScreen('s-profile')"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-11 CATEGORY DETAIL                   -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-cat-detail" class="screen">
+      <div class="wf-screen">
+        <div class="wf-topbar">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="cursor:pointer;font-size:20px;" onclick="showScreen('s-categories')">←</span>
+            <div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span class="cat-dot" style="background:#5c6bc0;width:10px;height:10px;display:inline-block;border-radius:50%;"></span>
+                <h2>Work</h2>
+              </div>
+              <div style="font-size:11px;color:var(--txt-light);">7 tasks</div>
+            </div>
+          </div>
+          <button class="icon-btn" onclick="showScreen('s-add-task')">＋</button>
+        </div>
+
+        <div class="section-label">Due Today (3)</div>
+        <div style="padding:0 16px;">
+          <div class="task-item" onclick="showScreen('s-task-detail')">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Prepare Q2 marketing report</div>
+              <div class="task-meta">📅 Today · <span style="color:var(--pri-high);">● High</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Review product brief from Sarah</div>
+              <div class="task-meta">📅 Today · <span style="color:var(--pri-low);">● Low</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Update website copy for campaign</div>
+              <div class="task-meta">📅 Today · <span style="color:var(--pri-med);">● Medium</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label">Upcoming (4)</div>
+        <div style="padding:0 16px;">
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Prepare board deck slides</div>
+              <div class="task-meta">📅 May 15 · <span style="color:var(--pri-high);">● High</span></div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Team retrospective notes</div>
+              <div class="task-meta">📅 May 16 · <span style="color:var(--pri-none);">● None</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wf-bottomnav">
+          <div class="nav-item" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item active" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item" onclick="showScreen('s-search')"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item" onclick="showScreen('s-profile')"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-12 SEARCH                            -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-search" class="screen">
+      <div class="wf-screen">
+        <div class="wf-topbar"><h2>Search</h2></div>
+
+        <div class="search-bar-wrap">
+          <div class="search-bar">
+            <span class="s-icon">🔍</span>
+            <input type="text" placeholder="Search tasks, categories…" value="market" />
+            <span style="font-size:12px;color:var(--txt-light);cursor:pointer;">✕</span>
+          </div>
+        </div>
+
+        <div class="section-label">Results for "market" (3)</div>
+        <div style="padding:0 16px;">
+          <div class="task-item" onclick="showScreen('s-task-detail')">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Prepare Q2 <mark style="background:#fff3cd;border-radius:2px;">market</mark>ing report</div>
+              <div class="task-meta">📁 Work · 📅 Today</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox done">✓</div>
+            <div class="task-info">
+              <div class="task-title done">Review <mark style="background:#fff3cd;border-radius:2px;">market</mark>ing budget</div>
+              <div class="task-meta">📁 Work · Completed May 10</div>
+            </div>
+          </div>
+          <div class="task-item">
+            <div class="task-checkbox"></div>
+            <div class="task-info">
+              <div class="task-title">Update website copy for <mark style="background:#fff3cd;border-radius:2px;">market</mark>ing campaign</div>
+              <div class="task-meta">📁 Work · 📅 Today</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:8px;">Filter by</div>
+        <div style="padding:0 16px;">
+          <div class="pill-row">
+            <span class="pill selected">All</span>
+            <span class="pill">Active</span>
+            <span class="pill">Completed</span>
+            <span class="pill">High priority</span>
+          </div>
+        </div>
+
+        <div class="wf-bottomnav">
+          <div class="nav-item" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item active"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item" onclick="showScreen('s-profile')"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-13 PROFILE & SETTINGS                -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-profile" class="screen">
+      <div class="wf-screen" style="padding-bottom:0;">
+        <div class="profile-hero">
+          <div class="profile-avatar">🙂</div>
+          <h2>Alex Morrison</h2>
+          <p>alex@email.com · Member since May 2026</p>
+        </div>
+
+        <!-- Stats strip -->
+        <div style="display:flex;border-bottom:1px solid var(--border);">
+          <div style="flex:1;padding:14px;text-align:center;background:white;">
+            <div style="font-size:20px;font-weight:800;color:var(--txt-dark);">47</div>
+            <div style="font-size:10px;color:var(--txt-light);">Tasks done</div>
+          </div>
+          <div style="flex:1;padding:14px;text-align:center;background:white;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+            <div style="font-size:20px;font-weight:800;color:var(--txt-dark);">8</div>
+            <div style="font-size:10px;color:var(--txt-light);">Day streak</div>
+          </div>
+          <div style="flex:1;padding:14px;text-align:center;background:white;">
+            <div style="font-size:20px;font-weight:800;color:var(--txt-dark);">4</div>
+            <div style="font-size:10px;color:var(--txt-light);">Categories</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="settings-item"><span class="si-icon">🔔</span><span class="si-label">Notifications</span><div class="si-toggle"></div></div>
+          <div class="settings-item"><span class="si-icon">🌙</span><span class="si-label">Dark Mode</span><div class="si-toggle" style="background:var(--bg-strip);"></div></div>
+          <div class="settings-item"><span class="si-icon">📅</span><span class="si-label">Default reminder</span><span style="font-size:12px;color:var(--txt-light);margin-right:6px;">6:00 PM</span><span class="si-arrow">›</span></div>
+          <div class="settings-item"><span class="si-icon">🎨</span><span class="si-label">App theme</span><span style="font-size:12px;color:var(--txt-light);margin-right:6px;">Indigo</span><span class="si-arrow">›</span></div>
+          <div class="settings-item"><span class="si-icon">📤</span><span class="si-label">Export data</span><span class="si-arrow">›</span></div>
+          <div class="settings-item"><span class="si-icon">❓</span><span class="si-label">Help & Feedback</span><span class="si-arrow">›</span></div>
+          <div class="settings-item" style="color:var(--pri-high);"><span class="si-icon">🚪</span><span class="si-label" style="color:var(--pri-high);">Sign Out</span></div>
+        </div>
+
+        <div class="wf-bottomnav">
+          <div class="nav-item" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item" onclick="showScreen('s-search')"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item active"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- S-14 COMPLETION STATE                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="s-done" class="screen">
+      <div class="wf-screen" style="padding-bottom:0;">
+        <div class="completion-screen">
+          <div class="trophy">🏆</div>
+          <h2>All done for today!</h2>
+          <p>You've completed all 5 tasks.<br/>Take a moment to celebrate — you earned it.</p>
+
+          <div style="margin:28px 0;width:100%;">
+            <div class="wf-card" style="text-align:center;">
+              <div style="font-size:13px;color:var(--txt-light);margin-bottom:4px;">Today's completion</div>
+              <div style="font-size:32px;font-weight:800;color:var(--green);">5 / 5</div>
+              <div class="progress-track" style="margin-top:10px;"><div class="progress-fill" style="width:100%;background:var(--green);"></div></div>
+              <div style="font-size:11px;color:var(--txt-light);margin-top:8px;">8-day streak 🔥</div>
+            </div>
+          </div>
+
+          <button class="wf-btn" onclick="showScreen('s-add-task')">＋ Add more tasks</button>
+          <button class="wf-btn-ghost" onclick="showScreen('s-home')">Back to Today</button>
+        </div>
+
+        <div class="wf-bottomnav">
+          <div class="nav-item active" onclick="showScreen('s-home')"><span class="icon">🏠</span>Today</div>
+          <div class="nav-item" onclick="showScreen('s-categories')"><span class="icon">📁</span>Categories</div>
+          <div class="nav-item" onclick="showScreen('s-search')"><span class="icon">🔍</span>Search</div>
+          <div class="nav-item" onclick="showScreen('s-profile')"><span class="icon">👤</span>Profile</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /screen-content -->
+</div><!-- /phone-shell -->
+
+<!-- Priority Legend -->
+<div class="wf-legend">
+  <h3>Priority Color Legend</h3>
+  <div class="leg-row"><span class="leg-dot" style="background:#ef5350;"></span> High Priority — must be done today</div>
+  <div class="leg-row"><span class="leg-dot" style="background:#fb8c00;"></span> Medium Priority — important, not urgent</div>
+  <div class="leg-row"><span class="leg-dot" style="background:#42a5f5;"></span> Low Priority — nice to do when time allows</div>
+  <div class="leg-row"><span class="leg-dot" style="background:#bdbdbd;"></span> No Priority — uncategorized / backlog</div>
+  <div style="margin-top:12px;font-size:11px;color:#555;">
+    ⬡ Wireframe fidelity: Low (grayscale palette, placeholder images, no real data)<br/>
+    ⬡ Prototype built in HTML/CSS — use Figma/Adobe XD for production design<br/>
+    ⬡ Screen size: 390×844 px (iPhone 14 viewport)
+  </div>
+</div>
+
+<script>
+  function showScreen(id, btnEl) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    // Show target
+    const target = document.getElementById(id);
+    if (target) target.classList.add('active');
+    // Update nav buttons
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    // Find the matching nav button by its onclick text
+    document.querySelectorAll('.nav-btn').forEach(b => {
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) {
+        b.classList.add('active');
+      }
+    });
+    // Scroll to top
+    document.querySelector('.screen-content').scrollTop = 0;
+  }
+</script>
+
+</body>
+</html>
