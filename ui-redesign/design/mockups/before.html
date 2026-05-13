@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verdant — BEFORE Redesign (Original with Issues)</title>
+  <style>
+    /* ── Intentionally problematic styles to demonstrate issues ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* Issue H4-01: No typographic scale — random font sizes */
+    body { font-family: Arial, sans-serif; background: #ffffff; }
+
+    /* Issue H8-02: Cluttered nav */
+    .nav {
+      background: #3a7d44;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    .nav .logo { color: white; font-size: 22px; font-weight: bold; }
+    /* Issue H6-01: Hamburger on desktop — nav hidden */
+    .nav .hamburger {
+      color: white; font-size: 28px; cursor: pointer;
+      display: block; /* shown even on desktop */
+    }
+    .nav-links { display: none; /* everything hidden! */ }
+
+    /* Issue H8-01: Hero — 4 competing CTAs, unreadable layering */
+    .hero {
+      position: relative;
+      height: 520px;
+      background: linear-gradient(45deg, #3a7d44, #6ab04c),
+                  repeating-linear-gradient(
+                    45deg,
+                    rgba(255,255,255,0.05) 0px,
+                    rgba(255,255,255,0.05) 2px,
+                    transparent 2px,
+                    transparent 10px
+                  );
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    /* Fake background text pattern (noise) */
+    .hero::before {
+      content: 'ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ORGANIC FRESH ';
+      position: absolute; inset: 0;
+      font-size: 11px; color: rgba(255,255,255,0.08);
+      word-break: break-all; overflow: hidden; padding: 10px;
+      line-height: 1.6;
+    }
+    .hero-content {
+      position: relative; z-index: 1;
+      text-align: center; color: white; padding: 20px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3), 0 0 20px rgba(0,0,0,0.2);
+    }
+    /* Issue H4-01: Random font sizes */
+    .hero-content h1 { font-size: 48px; font-weight: 900; margin-bottom: 8px; }
+    .hero-content p  { font-size: 14px; margin-bottom: 20px; max-width: 500px; }
+    .hero-badge {
+      display: inline-block;
+      background: #ff6b35;
+      color: white;
+      padding: 4px 10px;
+      font-size: 11px;
+      border-radius: 3px;
+      margin-bottom: 12px;
+    }
+    .hero-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    /* Issue H8-01: 4 CTAs at equal visual weight */
+    .hero-actions a {
+      padding: 10px 18px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: bold;
+    }
+    .btn-a { background: #ff6b35; color: white; }
+    .btn-b { background: white; color: #3a7d44; }
+    .btn-c { background: #222; color: white; }
+    /* Issue H2-01: Jargon CTA */
+    .btn-d { background: rgba(255,255,255,0.2); color: white; border: 1px solid white; }
+
+    /* Issue: No consistent section rhythm */
+    .section { padding: 30px 20px; }
+    .section-title { font-size: 28px; margin-bottom: 5px; } /* no scale */
+
+    /* Issue H8-04: Low contrast text */
+    .section p { font-size: 13px; color: #999; line-height: 1.5; } /* 2.8:1 ratio */
+
+    /* Product grid — inconsistent */
+    .product-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 20px;
+    }
+    .product-card {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: calc(25% - 9px);
+      overflow: hidden;
+      font-size: 13px;
+    }
+    /* Issue H8-05: Inconsistent image heights */
+    .product-card:nth-child(1) .card-img { height: 140px; }
+    .product-card:nth-child(2) .card-img { height: 200px; }
+    .product-card:nth-child(3) .card-img { height: 160px; }
+    .product-card:nth-child(4) .card-img { height: 120px; }
+
+    .card-img {
+      background: #c8e6c9;
+      display: flex; align-items: center; justify-content: center;
+      color: #666; font-size: 11px; font-style: italic;
+    }
+    .card-body { padding: 10px; }
+    .card-body h3 { font-size: 15px; margin-bottom: 4px; }
+    .card-body .price { font-size: 18px; font-weight: bold; color: #3a7d44; }
+    .card-body .desc { font-size: 12px; color: #999; margin: 4px 0; }
+    /* Issue H4-02: Inconsistent button colors */
+    .card-body .add-btn {
+      display: block; width: 100%;
+      padding: 8px;
+      border: none; border-radius: 3px;
+      font-size: 13px; cursor: pointer;
+      margin-top: 8px;
+    }
+    .product-card:nth-child(1) .add-btn { background: #3a7d44; color: white; }
+    .product-card:nth-child(2) .add-btn { background: #ff6b35; color: white; } /* wrong color! */
+    .product-card:nth-child(3) .add-btn { background: #333; color: white; }    /* wrong color! */
+    .product-card:nth-child(4) .add-btn { background: #3a7d44; color: white; }
+    /* Issue H4-03: "Add to Basket" vs "Add to Cart" */
+
+    /* Issue: Non-responsive layout */
+    .features { display: flex; gap: 20px; padding: 20px; }
+    .feature { flex: 1; padding: 16px; border: 1px solid #eee; }
+    .feature h4 { font-size: 16px; margin-bottom: 6px; }
+    .feature p  { font-size: 12px; color: #999; }
+
+    /* Issue H8-03: Massive footer */
+    footer {
+      background: #222;
+      color: #aaa;
+      padding: 40px 20px;
+      font-size: 12px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(11, 1fr); /* 11 columns! */
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .footer-col h5 { color: white; font-size: 11px; margin-bottom: 8px; text-transform: uppercase; }
+    .footer-col a  { display: block; color: #aaa; text-decoration: none; margin-bottom: 4px; font-size: 11px; }
+    .footer-bottom { border-top: 1px solid #333; padding-top: 16px; text-align: center; font-size: 11px; }
+
+    /* ── Issue Annotation Overlay ── */
+    .issues-bar {
+      background: #fff3cd;
+      border-bottom: 2px solid #ffc107;
+      padding: 10px 20px;
+      font-size: 12px;
+      color: #856404;
+    }
+    .issues-bar strong { font-size: 13px; }
+
+    .issue-tag {
+      display: inline-block;
+      background: #dc3545;
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 3px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    /* Not responsive indicator */
+    .not-responsive-banner {
+      background: #f8d7da;
+      color: #721c24;
+      text-align: center;
+      padding: 6px;
+      font-size: 12px;
+      border-bottom: 1px solid #f5c6cb;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin: 12px 20px;
+      font-size: 13px;
+      color: #3a7d44;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Annotation banner -->
+<div class="issues-bar">
+  <strong>⚠ BEFORE Redesign — Original Site with Annotated Issues</strong> ·
+  This page intentionally demonstrates the usability problems found in the heuristic evaluation.
+  Red tags mark specific issues. ·
+  <a href="after.html" style="color:#155724;font-weight:bold;">View Redesign →</a>
+</div>
+<div class="not-responsive-banner">
+  ⚠ This layout is NOT responsive — it breaks on mobile (43% of traffic). This is a documented issue (non-existent responsive design).
+</div>
+
+<!-- NAV — Issue H6-01: All navigation hidden behind hamburger even on desktop -->
+<nav class="nav">
+  <div class="logo">🌿 Verdant</div>
+  <span class="issue-tag">H6-01</span>
+  <div class="hamburger">☰</div>
+  <div class="nav-links"><!-- hidden --></div>
+</nav>
+
+<!-- HERO — Issues H8-01, H8-02, H2-01 -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">🏷 LIMITED TIME OFFER</div>
+    <span class="issue-tag">H8-02</span>
+    <h1>Organic. Fresh. Delivered.</h1>
+    <p>Get the freshest organic vegetables delivered straight to your door from our certified partner farms.</p>
+    <!-- 4 CTAs at equal weight — Issue H8-01 -->
+    <div class="hero-actions">
+      <a href="#" class="btn-a">Shop Now <span class="issue-tag">H8-01</span></a>
+      <a href="#" class="btn-b">Proceed to Acquisition <span class="issue-tag">H2-01</span></a>
+      <a href="#" class="btn-c">View Plans</a>
+      <a href="#" class="btn-d">Learn More</a>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCTS — Issues H4-02, H4-03, H8-05 -->
+<section class="section">
+  <h2 class="section-title">Our Products <span class="issue-tag">H4-01: no type scale</span></h2>
+  <p>Browse our range of seasonal organic produce boxes.</p>
+</section>
+
+<div class="product-grid">
+  <div class="product-card">
+    <div class="card-img">[ Veg Box Photo ]<br/><span class="issue-tag">H8-05: height 140px</span></div>
+    <div class="card-body">
+      <h3>Seasonal Veg Box</h3>
+      <div class="price">£18.99/wk</div>
+      <div class="desc">8 seasonal varieties</div>
+      <button class="add-btn">Add to Cart</button>
+    </div>
+  </div>
+  <div class="product-card">
+    <div class="card-img">[ Salad Box Photo ]<br/><span class="issue-tag">H8-05: height 200px</span></div>
+    <div class="card-body">
+      <h3>Salad Lovers Box</h3>
+      <div class="price">£14.50/wk</div>
+      <div class="desc">Mixed leaves & herbs</div>
+      <!-- Wrong button color — Issue H4-02 -->
+      <button class="add-btn">Add to Basket <span class="issue-tag">H4-03</span></button>
+    </div>
+  </div>
+  <div class="product-card">
+    <div class="card-img">[ Fruit Box Photo ]<br/><span class="issue-tag">H8-05: height 160px</span></div>
+    <div class="card-body">
+      <h3>Fruit Box</h3>
+      <div class="price">£16.00/wk</div>
+      <div class="desc">Seasonal British fruit</div>
+      <!-- Another wrong color — Issue H4-02 -->
+      <button class="add-btn">Add to Cart <span class="issue-tag">H4-02</span></button>
+    </div>
+  </div>
+  <div class="product-card">
+    <div class="card-img">[ Family Box Photo ]<br/><span class="issue-tag">H8-05: height 120px</span></div>
+    <div class="card-body">
+      <h3>Family Box</h3>
+      <div class="price">£26.99/wk</div>
+      <div class="desc">Feeds a family of 4</div>
+      <button class="add-btn">Add to Basket <span class="issue-tag">H4-03</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- Low contrast text — Issue H8-04 -->
+<section class="section">
+  <h2 class="section-title">Why Go Organic?</h2>
+  <p>
+    <span class="issue-tag">H8-04: #999 on #fff = 2.8:1 contrast (fails WCAG AA)</span><br/>
+    Organic produce is grown without synthetic pesticides or fertilisers,
+    meaning better nutrition for your family and better outcomes for the
+    environment. Our farmers are certified by the Soil Association and
+    inspected annually.
+  </p>
+</section>
+
+<!-- Features — Non-responsive on mobile -->
+<div class="features">
+  <div class="feature">
+    <h4>🚚 Free Delivery</h4>
+    <p>On all orders over £25 — delivered to your door every week.</p>
+  </div>
+  <div class="feature">
+    <h4>🌱 100% Organic</h4>
+    <p>Every product is Soil Association certified. No exceptions.</p>
+  </div>
+  <div class="feature">
+    <h4>🔄 Flexible Plans</h4>
+    <p>Pause, skip or cancel any time. No lock-in contracts.</p>
+  </div>
+  <div class="feature">
+    <h4>👨‍🌾 Local Farmers</h4>
+    <p>Direct from farms within 100 miles. Fresher, greener supply chain.</p>
+  </div>
+</div>
+
+<!-- FOOTER — Issue H8-03: 11 columns -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-col"><h5>Shop</h5><a href="#">Veg Boxes</a><a href="#">Fruit</a><a href="#">Salad</a><a href="#">Herbs</a><a href="#">Seasonal</a></div>
+    <div class="footer-col"><h5>Plans</h5><a href="#">Weekly</a><a href="#">Fortnightly</a><a href="#">Monthly</a><a href="#">One-off</a></div>
+    <div class="footer-col"><h5>About</h5><a href="#">Our Story</a><a href="#">Farmers</a><a href="#">Certifications</a><a href="#">Blog</a></div>
+    <div class="footer-col"><h5>Support</h5><a href="#">FAQ</a><a href="#">Contact</a><a href="#">Returns</a><a href="#">Track Order</a></div>
+    <div class="footer-col"><h5>Account</h5><a href="#">Sign In</a><a href="#">Register</a><a href="#">Orders</a><a href="#">Preferences</a></div>
+    <div class="footer-col"><h5>Recipes</h5><a href="#">Seasonal</a><a href="#">Quick</a><a href="#">Family</a><a href="#">Vegan</a></div>
+    <div class="footer-col"><h5>Press</h5><a href="#">Media Kit</a><a href="#">Coverage</a><a href="#">Awards</a></div>
+    <div class="footer-col"><h5>Partners</h5><a href="#">Farms</a><a href="#">Restaurants</a><a href="#">Workplaces</a></div>
+    <div class="footer-col"><h5>Legal</h5><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Cookies</a><a href="#">Accessibility</a></div>
+    <div class="footer-col"><h5>Social</h5><a href="#">Instagram</a><a href="#">Twitter</a><a href="#">Facebook</a><a href="#">Pinterest</a></div>
+    <div class="footer-col"><h5>App</h5><a href="#">iOS</a><a href="#">Android</a></div>
+  </div>
+  <div class="footer-bottom">
+    <span class="issue-tag">H8-03: 11 footer columns with 60+ links</span><br/><br/>
+    © 2026 Verdant Organics Ltd. All rights reserved.
+  </div>
+</footer>
+
+</body>
+</html>
